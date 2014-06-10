@@ -10,12 +10,13 @@ from easy_thumbnails.source_generators import pil_image
 
 logger = logging.getLogger(__name__)
 
+THUMB_SIZE = getattr(settings, 'IMAGE_CROPPING_THUMB_SIZE', (300, 300))
 
 def thumbnail(image_path):
     thumbnailer = get_thumbnailer(image_path)
     thumbnail_options = {
         'detail': True,
-        'size': getattr(settings, 'IMAGE_CROPPING_THUMB_SIZE', (300, 300)),
+        'size': THUMB_SIZE,
     }
     thumb = thumbnailer.get_thumbnail(thumbnail_options)
     return thumb.url
@@ -42,6 +43,7 @@ def get_attrs(image, name):
         return {
             'class': "crop-thumb",
             'data-thumbnail-url': thumbnail(image),
+            'data-thumbnail-size': list(THUMB_SIZE),
             'data-field-name': name,
             'data-org-width': width,
             'data-org-height': height,

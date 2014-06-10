@@ -116,6 +116,39 @@ var image_cropping = function ($) {
               }
           });
         }
+
+        // alllow cropping before upload
+        var thumb_size =  $image_input.data('thumbnail-size');
+        $image_input.change(function() {
+            var file = $(this)[0].files[0];
+
+            if (!file.type.match(/image.*/)) {
+              return;
+            }
+            jcrop[image_id].destroy();
+
+            var reader = new FileReader();
+            reader.onload = (function(thumbnail) { return function(e) {
+                $("<img/>").attr('src', e.target.result).load(function(){
+                    $.extend(options, {
+                        trueSize: [this.width, this.height],
+                        setSelect: max_cropping(min_width, min_height,
+                                                this.width, this.height),
+                    });
+                    if (this.width >= this.height) {
+                        thumbnail.width(thumb_size[0]);
+                        thumbnail.height(this.height*thumb_size[0]/this.width );
+                    }
+                    else {
+                        thumbnail.height(thumb_size[1]);
+                        thumbnail.width(this.width*thumb_size[1]/this.height);
+                    }
+                    thumbnail.attr('src', e.target.result);
+                    thumbnail.Jcrop(options, function(){jcrop[image_id]=this;});
+                });
+            }; })($('#' + image_id));
+            reader.readAsDataURL(file);
+        } );
       });
 
       if ($('body').hasClass('change-form')) {
